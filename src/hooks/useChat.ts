@@ -45,10 +45,20 @@ export const useChat = () => {
         type: 'user',
       });
 
+      // Determine loading message based on query complexity
+      const isComplexQuery = query.toLowerCase().includes('compare') || 
+                           query.toLowerCase().includes('vs') ||
+                           query.toLowerCase().includes('alongside') ||
+                           query.toLowerCase().includes('alternative');
+      
+      const loadingMessage = isComplexQuery 
+        ? '🧠 **Performing detailed AI analysis...**\n\nThis complex query requires deep tactical analysis and may take 60-90 seconds to complete. Please wait while our AI processes comprehensive player data and generates insights.'
+        : '🤖 **Analyzing your query...**\n\nProcessing player data and generating insights...';
+
       // Add loading assistant message
       const loadingId = Date.now().toString() + '_loading';
       addMessage({
-        content: '',
+        content: loadingMessage,
         type: 'assistant',
         isLoading: true,
       });

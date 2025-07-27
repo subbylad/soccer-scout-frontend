@@ -31,7 +31,7 @@ class SoccerScoutAPI {
 
   constructor(config: APIConfig = { 
     baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://soccer-scout-api-production.up.railway.app', 
-    timeout: 30000 
+    timeout: 90000 // 90 seconds for complex AI queries
   }) {
     this.config = config;
   }
