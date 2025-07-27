@@ -82,19 +82,20 @@ export const useChat = () => {
       const loadingMessage = messages.find(msg => msg.isLoading && msg.type === 'assistant');
       
       if (loadingMessage) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const isAIError = errorMessage.includes('Failed to generate') || errorMessage.includes('reasoning');
+        
         updateMessage(loadingMessage.id, {
-          content: `❌ **Connection Error**
+          content: `❌ **${isAIError ? 'AI Service Error' : 'Connection Error'}**
 
-Sorry, I couldn't process your query "${query}" due to a connection issue.
+Sorry, I couldn't process your query "${query}"${isAIError ? ' - the AI analysis service is temporarily unavailable' : ' due to a connection issue'}.
 
 **Possible causes:**
-• Network connectivity problem
-• Backend service temporarily unavailable
-• API response validation failed
+${isAIError ? '• AI reasoning service is temporarily down\n• Complex query exceeded processing limits\n• Backend AI model experiencing issues' : '• Network connectivity problem\n• Backend service temporarily unavailable\n• API response validation failed'}
 
-**Please try again in a moment.** If the issue persists, the backend may be temporarily down for maintenance.
+**Please try again in a moment.** ${isAIError ? 'Try a simpler query if the issue persists.' : 'If the issue persists, the backend may be temporarily down for maintenance.'}
 
-**Error details:** ${error instanceof Error ? error.message : 'Unknown error'}`,
+**Error details:** ${errorMessage}`,
           isLoading: false,
         });
       }

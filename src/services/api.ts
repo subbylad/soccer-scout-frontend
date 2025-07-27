@@ -37,21 +37,18 @@ class SoccerScoutAPI {
   }
 
   private async handleResponse(response: Response): Promise<QueryResponse> {
-    if (!response.ok) {
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.detail || errorData.message || errorMessage;
-      } catch {
-        // If response isn't JSON, use the status text
-      }
-
-      throw new APIError(errorMessage, response.status);
-    }
-
     try {
       const responseData = await response.json();
+      
+      // Handle backend error responses (even with 400 status)
+      if (!response.ok || responseData.success === false) {
+        const errorMessage = responseData.error || 
+                           responseData.detail || 
+                           responseData.message || 
+                           `HTTP ${response.status}: ${response.statusText}`;
+        
+        throw new APIError(errorMessage, response.status);
+      }
       
       // Handle the nested response structure from our API
       const data = responseData.data || responseData;
