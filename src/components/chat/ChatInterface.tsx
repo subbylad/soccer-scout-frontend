@@ -1,79 +1,60 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageList } from './MessageList';
 import { QueryInput } from './QueryInput';
+import { HomePage } from '../pages/HomePage';
+import { Header } from '../layout/Header';
 import { useChatStore } from '@/store/chatStore';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 export const ChatInterface: React.FC = () => {
   const { messages, isLoading } = useChatStore();
+  const [currentView, setCurrentView] = useState<'home' | 'chat'>('home');
+  const [prefilledQuery, setPrefilledQuery] = useState<string>('');
+
+  const handleStartAnalysis = (query?: string) => {
+    if (query) {
+      setPrefilledQuery(query);
+    }
+    setCurrentView('chat');
+  };
+
+  const handleNavigateHome = () => {
+    setCurrentView('home');
+    setPrefilledQuery('');
+  };
+
+  if (currentView === 'home') {
+    return <HomePage onStartAnalysis={handleStartAnalysis} />;
+  }
 
   return (
-    <div className="chat-container">
-      {/* Professional Header */}
-      <header className="chat-header">
-        <div className="chat-header-content">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <div className="mb-4">
-              <h1 className="text-display-md font-bold gradient-text-primary mb-3">
-                Soccer Scout AI
-              </h1>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto text-balance">
-                AI-powered tactical analysis and player insights for professional scouts. 
-                Ask about players, formations, tactical compatibility, or scouting reports.
-              </p>
-            </div>
-            
-            {/* Feature highlights */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-wrap justify-center gap-2 mt-6"
-            >
-              {[
-                'Player Comparisons',
-                'Tactical Analysis',
-                'GPT-4 Enhanced',
-                '2,850+ Players',
-                'Big 5 Leagues'
-              ].map((feature, index) => (
-                <span
-                  key={feature}
-                  className="badge-primary"
-                >
-                  {feature}
-                </span>
-              ))}
-            </motion.div>
-          </motion.div>
-        </div>
-      </header>
-
-      {/* Main Chat Area */}
-      <main className="chat-main">
-        <div className="chat-messages">
-          <div className="chat-messages-content">
-            <ErrorBoundary>
-              <MessageList messages={messages} />
-            </ErrorBoundary>
-          </div>
+    <div className="min-h-screen bg-white">
+      <Header 
+        currentPage="chat" 
+        onNavigateHome={handleNavigateHome}
+      />
+      
+      <main className="max-w-5xl mx-auto px-6 py-8">
+        {/* Chat Messages */}
+        <div className="mb-8">
+          <ErrorBoundary>
+            <MessageList messages={messages} />
+          </ErrorBoundary>
         </div>
         
-        {/* Input Container */}
-        <div className="chat-input-container">
-          <div className="chat-input-content">
-            <ErrorBoundary>
-              <QueryInput disabled={isLoading} />
-            </ErrorBoundary>
-          </div>
+        {/* Query Input - Clean Design */}
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-sm py-6">
+          <ErrorBoundary>
+            <QueryInput 
+              disabled={isLoading}
+              placeholder="Ask about players, tactics, or comparisons..."
+              prefilledQuery={prefilledQuery}
+              onQuerySubmitted={() => setPrefilledQuery('')}
+            />
+          </ErrorBoundary>
         </div>
       </main>
     </div>

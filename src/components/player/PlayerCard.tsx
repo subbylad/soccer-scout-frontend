@@ -8,9 +8,11 @@ import { formatNumber, formatAge, formatPosition, getTierLabel } from '@/utils';
 
 interface PlayerCardProps {
   player: Player;
+  reasoning?: string;
+  confidence?: number;
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({ player, reasoning, confidence }) => {
   const { stats } = player;
 
   return (
@@ -18,105 +20,126 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="world-card hover:shadow-world-medium"
+      className="border border-gray-200 p-8 hover:border-gray-300 transition-colors"
     >
-      {/* Player header with world.org typography */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex-1">
-          <h3 className="world-text-body font-semibold mb-2">
-            {player.name}
-          </h3>
-          
-          <div className="flex items-center gap-4 world-text-meta text-world-text-secondary">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              {player.club}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              {formatAge(player.age)}
-            </span>
+      {/* Player Header */}
+      <header className="mb-6">
+        <h4 className="text-xl font-medium text-gray-900 mb-2">
+          {player.name}
+        </h4>
+        <div className="text-gray-600 space-y-1">
+          <p>{formatPosition(player.position)} • {player.club}</p>
+          <p className="text-sm">{player.league}</p>
+        </div>
+      </header>
+
+      {/* Key Stats - Clean Typography */}
+      <section className="mb-6">
+        <h5 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide">
+          Key Metrics
+        </h5>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Goals</span>
+            <span className="font-medium text-gray-900">{stats.goals}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Assists</span>
+            <span className="font-medium text-gray-900">{stats.assists}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Goals/90</span>
+            <span className="font-medium text-gray-900">{formatNumber(stats.goals_per_90)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Assists/90</span>
+            <span className="font-medium text-gray-900">{formatNumber(stats.assists_per_90)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">xG</span>
+            <span className="font-medium text-gray-900">{formatNumber(stats.xg)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Minutes</span>
+            <span className="font-medium text-gray-900">{stats.minutes_played.toLocaleString()}</span>
           </div>
         </div>
+      </section>
 
-        <div className="text-right">
-          <div className="bg-world-bg-muted text-world-text-secondary px-3 py-1 rounded font-medium world-text-meta">
-            {formatPosition(player.position)}
-          </div>
-          {stats.potential_score && (
-            <div className="world-text-meta text-world-text-muted mt-1">
-              {getTierLabel(stats.potential_score)}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Minimal stats table with world.org aesthetic */}
-      <div className="space-y-3 mb-6">
-        <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-          <span className="world-text-meta text-world-text-secondary">Goals</span>
-          <span className="world-text-meta font-medium">
-            {stats.goals} ({formatNumber(stats.goals_per_90)}/90)
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-          <span className="world-text-meta text-world-text-secondary">Assists</span>
-          <span className="world-text-meta font-medium">
-            {stats.assists} ({formatNumber(stats.assists_per_90)}/90)
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-          <span className="world-text-meta text-world-text-secondary">Expected Goals</span>
-          <span className="world-text-meta font-medium">
-            {formatNumber(stats.xg)}
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-          <span className="world-text-meta text-world-text-secondary">Minutes Played</span>
-          <span className="world-text-meta font-medium">
-            {stats.minutes_played.toLocaleString()} ({stats.matches_played} games)
-          </span>
-        </div>
-      </div>
-
-      {/* Additional stats in minimal world.org style */}
+      {/* Additional Insights */}
       {stats.xa > 0 && (
-        <div className="space-y-2 mb-6">
-          <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-            <span className="world-text-meta text-world-text-secondary">Expected Assists</span>
-            <span className="world-text-meta font-medium">{formatNumber(stats.xa)}</span>
+        <section className="mb-6">
+          <h5 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide">
+            Advanced Metrics
+          </h5>
+          <div className="grid grid-cols-1 gap-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">xA</span>
+              <span className="font-medium text-gray-900">{formatNumber(stats.xa)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">vs Expected</span>
+              <span className="font-medium text-gray-900">
+                {stats.goals + stats.assists > stats.xg + stats.xa ? 'Above' : 'Below'}
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-            <span className="world-text-meta text-world-text-secondary">Performance vs Expected</span>
-            <span className="world-text-meta font-medium">
-              {stats.goals + stats.assists > stats.xg + stats.xa ? 'Above' : 'Below'} expected
+        </section>
+      )}
+
+      {/* Progressive Actions */}
+      {(stats.progressive_passes > 0 || stats.progressive_carries > 0) && (
+        <section className="mb-6">
+          <h5 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wide">
+            Progressive Actions
+          </h5>
+          <div className="grid grid-cols-1 gap-2 text-sm">
+            {stats.progressive_passes > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Passes</span>
+                <span className="font-medium text-gray-900">{stats.progressive_passes}</span>
+              </div>
+            )}
+            {stats.progressive_carries > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Carries</span>
+                <span className="font-medium text-gray-900">{stats.progressive_carries}</span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* AI Reasoning */}
+      {reasoning && (
+        <section className="mb-4">
+          <h5 className="text-sm font-medium text-gray-900 mb-2 uppercase tracking-wide">
+            Analysis
+          </h5>
+          <p className="text-gray-700 leading-relaxed text-sm">
+            {reasoning}
+          </p>
+        </section>
+      )}
+      
+      {/* Confidence Score */}
+      {confidence && (
+        <div className="pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500 uppercase tracking-wide">
+              Confidence
+            </span>
+            <span className="text-sm font-medium text-gray-900">
+              {Math.round(confidence * 100)}%
             </span>
           </div>
         </div>
       )}
-
-      {/* Progressive stats */}
-      {(stats.progressive_passes > 0 || stats.progressive_carries > 0) && (
-        <div className="space-y-2 mb-6">
-          {stats.progressive_passes > 0 && (
-            <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-              <span className="world-text-meta text-world-text-secondary">Progressive Passes</span>
-              <span className="world-text-meta font-medium">{stats.progressive_passes}</span>
-            </div>
-          )}
-          {stats.progressive_carries > 0 && (
-            <div className="flex justify-between items-center py-2 border-b border-world-border-muted">
-              <span className="world-text-meta text-world-text-secondary">Progressive Carries</span>
-              <span className="world-text-meta font-medium">{stats.progressive_carries}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Footer with league and nationality */}
-      <div className="flex items-center justify-between pt-4 mt-6 border-t border-world-border-muted">
-        <span className="world-text-meta text-world-text-secondary">{player.league}</span>
-        <span className="world-text-meta text-world-text-muted">{player.nationality}</span>
+      
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+        <span className="text-xs text-gray-500 uppercase tracking-wide">{player.nationality}</span>
+        <span className="text-xs text-gray-500">Age {formatAge(player.age)}</span>
       </div>
     </motion.div>
   );
