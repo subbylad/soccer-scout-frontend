@@ -9,7 +9,7 @@ const validateQueryResponse = (data: any): data is QueryResponse => {
     data &&
     typeof data === 'object' &&
     typeof data.response_text === 'string' &&
-    typeof data.query_type === 'string' &&
+    (data.query_type === undefined || typeof data.query_type === 'string') && // Made query_type optional
     (data.players === undefined || Array.isArray(data.players)) &&
     (data.analysis === undefined || typeof data.analysis === 'object') &&
     (data.comparison === undefined || typeof data.comparison === 'object') &&

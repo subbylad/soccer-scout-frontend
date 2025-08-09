@@ -118,10 +118,15 @@ export interface QueryResponse {
   analysis?: TacticalAnalysis;
   comparison?: ComparisonAnalysis;
   scouting_report?: ScoutingReport;
-  query_type: 'comparison' | 'search' | 'tactical' | 'scouting' | 'general' | 'demo';
+  query_type?: 'comparison' | 'search' | 'tactical' | 'scouting' | 'general' | 'demo'; // Made optional
   processing_time?: number;
   data_source?: string;
   suggestions?: string[];
+  // Backend compatibility fields
+  success?: boolean;
+  summary?: string;
+  recommendations?: any[];
+  metadata?: any;
 }
 
 export interface APIConfig {
